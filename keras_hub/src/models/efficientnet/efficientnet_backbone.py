@@ -121,6 +121,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
         depth_divisor=8,
         min_depth=8,
         input_shape=(None, None, 3),
+        data_format="channels_last",
         activation="swish",
         include_initial_padding=False,
         use_depth_divisor_as_min_depth=False,
@@ -158,6 +159,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
             kernel_size=3,
             strides=2,
             padding=stem_conv_padding,
+            data_format=data_format,
             use_bias=False,
             kernel_initializer=conv_kernel_initializer(),
             name="stem_conv",
@@ -228,6 +230,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
                         filters_out=output_filters,
                         kernel_size=stackwise_kernel_sizes[i],
                         strides=strides,
+                        data_format=data_format,
                         expand_ratio=stackwise_expansion_ratios[i],
                         se_ratio=squeeze_and_excite_ratio,
                         activation=activation,
@@ -241,6 +244,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
                         expand_ratio=stackwise_expansion_ratios[i],
                         kernel_size=stackwise_kernel_sizes[i],
                         strides=strides,
+                        data_format=data_format,
                         se_ratio=squeeze_and_excite_ratio,
                         activation=activation,
                         dropout=dropout * block_id / blocks,
@@ -263,12 +267,12 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
         x = keras.layers.Conv2D(
             filters=top_filters,
             kernel_size=1,
-            padding="same",
             strides=1,
+            padding="same",
+            data_format="channels_last",
             kernel_initializer=conv_kernel_initializer(),
             use_bias=False,
             name="top_conv",
-            data_format="channels_last",
         )(x)
         x = keras.layers.BatchNormalization(
             momentum=batch_norm_momentum,
@@ -291,6 +295,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
         self.dropout = dropout
         self.depth_divisor = depth_divisor
         self.min_depth = min_depth
+        self.data_format = data_format
         self.activation = activation
         self.stackwise_kernel_sizes = stackwise_kernel_sizes
         self.stackwise_num_repeats = stackwise_num_repeats
@@ -374,6 +379,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
         se_ratio=0.0,
         dropout=0.0,
         name="",
+        data_format="channels_last",
     ):
         """An inverted residual block.
 
@@ -399,6 +405,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
                 kernel_size=1,
                 strides=1,
                 padding="same",
+                data_format=data_format,
                 use_bias=False,
                 kernel_initializer=conv_kernel_initializer(),
                 name=name + "expand_conv",
@@ -427,6 +434,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
             kernel_size=kernel_size,
             strides=strides,
             padding=conv_pad,
+            data_format=data_format,
             use_bias=False,
             depthwise_initializer=conv_kernel_initializer(),
             name=name + "dwconv",
@@ -451,6 +459,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
                 filters_se,
                 1,
                 padding="same",
+                data_format=data_format,
                 activation=activation,
                 kernel_initializer=conv_kernel_initializer(),
                 name=name + "se_reduce",
@@ -459,6 +468,7 @@ class EfficientNetBackbone(FeaturePyramidBackbone):
                 filters,
                 1,
                 padding="same",
+                data_format=data_format,
                 activation="sigmoid",
                 kernel_initializer=conv_kernel_initializer(),
                 name=name + "se_expand",
