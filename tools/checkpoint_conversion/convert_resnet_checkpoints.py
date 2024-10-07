@@ -74,10 +74,10 @@ def validate_output(keras_model, timm_model):
     )
     image = PIL.Image.open(file)
     batch = np.array([image])
-
     # Call with Timm.
     timm_batch = keras_model.preprocessor(batch)
-    timm_batch = keras.ops.transpose(timm_batch, axes=(0, 3, 1, 2)) / 255.0
+    import ipdb; ipdb.set_trace()
+    timm_batch = keras.ops.transpose(timm_batch, axes=(0, 3, 1, 2)) / 255
     timm_batch = torch.from_numpy(np.array(timm_batch))
     timm_outputs = timm_model(timm_batch).detach().numpy()
     timm_label = np.argmax(timm_outputs[0])
